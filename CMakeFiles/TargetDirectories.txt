@@ -1,0 +1,4 @@
+/home/pranay/Desktop/buoy_detect/CMakeFiles/rebuild_cache.dir
+/home/pranay/Desktop/buoy_detect/CMakeFiles/edit_cache.dir
+/home/pranay/Desktop/buoy_detect/CMakeFiles/integrator.dir
+/home/pranay/Desktop/buoy_detect/CMakeFiles/test_main.dir
