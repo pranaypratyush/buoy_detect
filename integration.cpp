@@ -78,7 +78,7 @@ int main(int argc, char** argv)
     vw_detect detector1(argv[1]);
     detector = &detector1;
 
-    buoy_detect(ros::NodeHandle nh);
+    buoy_detect(nh);
     ros::spin();
     return 0;
 }
