@@ -47,18 +47,35 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
     temp1.deallocate();
     temp2.deallocate();
 }
+void buoy_detect()
+{
+
+	image_transport::Subscriber sub = it.subscribe("topics::CAMERA_FRONT_RAW_IMAGE", 1, imageCallback);
+  	ros::publisher result = it.publish<intergration::center_color>("CENTER_COLOR_IMAGE",1);
+	//topic has to be added topicsheaderlist
+  
+	
+ 
+	//main code (vw detect + region growing)
+
+
+
+
+
+
+
+}
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "inte_main");
+    ros::init(argc, argv, "integration");
 
     ros::NodeHandle nh;
     vw_detect detector(argv[1]);
     image_transport::ImageTransport it(nh);
-    image_transport::Subscriber sub = it.subscribe("topics::CAMERA_FRONT_RAW_IMAGE", 1, imageCallback);
-
-
-
+	buoy_detect();    
+	ros::spin();
+    return 0;
 }
 
 
