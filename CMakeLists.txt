@@ -5,6 +5,8 @@ rosbuild_init()
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
+rosbuild_genmsg()
+
 find_package( Threads )
 find_package( OpenCV REQUIRED )
 set(CMAKE_BUILD_TYPE Debug)
