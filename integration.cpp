@@ -5,6 +5,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <std_msgs/String.h>
+#include <kraken_msgs/center_color.h>
 
 #include <resources/topicHeader.h>
 
@@ -52,20 +53,37 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 void buoy_detect(ros::NodeHandle nh)
 {
     
+	
+
     image_transport::ImageTransport it(nh);
     image_transport::Subscriber sub = it.subscribe("topics::CAMERA_FRONT_RAW_IMAGE", 1, imageCallback);
-    image_transport::Publisher result = it.advertise<intergration::center_color>("CENTER_COLOR_IMAGE", 1);
+    ros::Publisher result = it.advertise<kraken_msgs::center_color>("CENTER_COLOR_IMAGE", 1);
     //topic has to be added topicsheaderlist
     
-
+	// msgs have to defined in kraken_msg
 
     //main code (vw detect + region growing)
 
 
 
+	image_transport::Publisher ml_image_pub = it.advertise<"topics::CAMERA_FRONT_ML_IMAGE",1);
+	image_transport::Publisher final_image_pub = it.advertise<"topics::CAMERA_FRONT_FIANL_IMAGE",1);
 
+	ros::Rate loop_rate(1);
 
+	while(nh.ok())
+	{
+		cv_bridge::CvImagePtr cv_ptr_ml;
+		cv_ptr_ml->image=color_detect[0];
+		
+		
+		ml_image_pub.publish(cv_ptr_ml->toImageMsg());
+		waitkey(1);
 
+		ros::spinOnce();
+ 		loop_rate.sleep();
+	}
+	
 
 }
 
