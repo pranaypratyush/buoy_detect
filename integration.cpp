@@ -14,7 +14,8 @@ using namespace cv;
 
 Mat image[15];
 Mat colour_detect[15];
-vw_detect &detector;
+vw_detect *detector;
+
 
 void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
@@ -38,25 +39,27 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         ROS_ERROR("cv_bridge exception: %s", e.what());
         return;
     }
-    
+
     // filters to be used before detection is done
     
-     Mat newMat(image.rows, image.cols, CV_8UC3,Scalar(0,0,0));
-     colour_detect[0] = newMat;
-    detector.getPredictions(image[0],colour_detect[0]);
+    Mat newMat(image[0].rows, image[0].cols, CV_8UC3, Scalar(0, 0, 0));
+    colour_detect[0] = newMat;
+    detector->getPredictions(image[0], colour_detect[0]);
     temp1.deallocate();
     temp2.deallocate();
 }
-void buoy_detect()
-{
 
-	image_transport::Subscriber sub = it.subscribe("topics::CAMERA_FRONT_RAW_IMAGE", 1, imageCallback);
-  	ros::publisher result = it.publish<intergration::center_color>("CENTER_COLOR_IMAGE",1);
-	//topic has to be added topicsheaderlist
-  
-	
- 
-	//main code (vw detect + region growing)
+void buoy_detect(ros::NodeHandle nh)
+{
+    
+    image_transport::ImageTransport it(nh);
+    image_transport::Subscriber sub = it.subscribe("topics::CAMERA_FRONT_RAW_IMAGE", 1, imageCallback);
+    image_transport::Publisher result = it.advertise<intergration::center_color>("CENTER_COLOR_IMAGE", 1);
+    //topic has to be added topicsheaderlist
+    
+
+
+    //main code (vw detect + region growing)
 
 
 
@@ -71,11 +74,12 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "integration");
 
     ros::NodeHandle nh;
+    
     vw_detect detector1(argv[1]);
-    detector = detector1;
-    image_transport::ImageTransport it(nh);
-	buoy_detect();    
-	ros::spin();
+    detector = &detector1;
+
+    buoy_detect(ros::NodeHandle nh);
+    ros::spin();
     return 0;
 }
 

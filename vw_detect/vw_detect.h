@@ -38,7 +38,7 @@ public:
     void getPredictions(cv::Mat, cv::Mat);
     bool is_idle();
     void clean_up();
-    vw_detect(char*, int);
+    vw_detect(char*, int n = 4);
     ~vw_detect();
     void wait_for_completion();
 private:
