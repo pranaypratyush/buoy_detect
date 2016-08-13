@@ -9,10 +9,21 @@ set(CMAKE_DEPENDS_CHECK_CXX
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
+# Preprocessor definitions for this target.
+set(CMAKE_TARGET_DEFINITIONS_CXX
+  "ROS_PACKAGE_NAME=\"buoy_detect\""
+  )
+
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
+  "include"
+  "/home/pranay/ros_ws/kraken_3.0/msgs_stack/kraken_msgs/msg_gen/cpp/include"
+  "/home/pranay/ros_ws/kraken_3.0/msgs_stack/kraken_msgs/srv_gen/cpp/include"
+  "/home/pranay/ros_ws/kraken_3.0/resources/include"
+  "/opt/ros/kinetic/include"
   "/opt/ros/kinetic/include/opencv-3.1.0-dev/opencv"
   "/opt/ros/kinetic/include/opencv-3.1.0-dev"
+  "msg_gen/cpp/include"
   )
 
 # Targets to which this target links.

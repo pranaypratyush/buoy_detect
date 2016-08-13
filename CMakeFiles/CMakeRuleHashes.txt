@@ -1,0 +1,11 @@
+# Hashes of file build rules.
+8211cd405647881cab99c38a25e006b4 CMakeFiles/ROSBUILD_genmsg_cpp
+8211cd405647881cab99c38a25e006b4 CMakeFiles/ROSBUILD_genmsg_lisp
+8211cd405647881cab99c38a25e006b4 CMakeFiles/ROSBUILD_genmsg_py
+50b8337a66d90eb6cdd97529413076a8 CMakeFiles/clean_test_results
+b36b2fd9fc8575eb880f2cef27ed2807 CMakeFiles/rosbuild_clean-test-results
+3bd58562e22ad5dd74e4363cd8c87018 CMakeFiles/test-results
+e736b080f4dc3c3b2e94a1cb6ac1ce55 msg_gen/cpp/include/buoy_detect/center_color.h
+9b542ab7454b2046d259841d9384c9cf msg_gen/lisp/center_color.lisp
+ec06eefa2d07e61aae9a69951a4b2090 src/buoy_detect/msg/__init__.py
+91b9540d87fa91fdd8e8e8cbaf46a69b src/buoy_detect/msg/_center_color.py

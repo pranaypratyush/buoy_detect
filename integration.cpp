@@ -14,7 +14,7 @@ using namespace cv;
 
 Mat image[15];
 Mat colour_detect[15];
-vw_detect detector;
+vw_detect &detector;
 
 void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
@@ -71,7 +71,8 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "integration");
 
     ros::NodeHandle nh;
-    vw_detect detector(argv[1]);
+    vw_detect detector1(argv[1]);
+    detector = detector1;
     image_transport::ImageTransport it(nh);
 	buoy_detect();    
 	ros::spin();

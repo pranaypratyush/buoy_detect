@@ -1,8 +1,11 @@
 file(REMOVE_RECURSE
+  "msg_gen"
+  "msg_gen"
+  "src/buoy_detect/msg"
   "CMakeFiles/test_main.dir/main.cpp.o"
   "CMakeFiles/test_main.dir/vw_detect/vw_detect.cpp.o"
-  "test_main.pdb"
-  "test_main"
+  "bin/test_main.pdb"
+  "bin/test_main"
 )
 
 # Per-language clean rules from dependency scanning.
