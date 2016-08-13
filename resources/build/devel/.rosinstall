@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/pranay/ros_ws/kraken_3.0/resources/build/devel/setup.sh
