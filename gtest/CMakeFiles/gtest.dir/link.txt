@@ -1,1 +1,0 @@
-/usr/bin/g++  -fPIC -O2 -g -DNDEBUG  -shared -Wl,-soname,libgtest.so -o ../lib/libgtest.so CMakeFiles/gtest.dir/src/gtest-all.cc.o  -L/home/pranay/ros_ws/kraken_3.0/resources/lib  -L/opt/ros/kinetic/lib  -L/home/pranay/Desktop/buoy_detect/gtest/src -lpthread -Wl,-rpath,/home/pranay/ros_ws/kraken_3.0/resources/lib:/opt/ros/kinetic/lib:/home/pranay/Desktop/buoy_detect/gtest/src 
