@@ -13,9 +13,41 @@
 using namespace std;
 using namespace cv;
 
+enum color_enum
+{
+    black = 1, yellow = 2, green = 3, red = 4, other = 5
+};
+
+typedef struct point_
+{
+    int x, y;
+    color_enum color;
+}
+point;
+
 Mat image[15];
 Mat colour_detect[15];
 vw_detect *detector;
+ros::NodeHandle nh;
+image_transport::ImageTransport it(nh);
+image_transport::Publisher *ml_pub;
+
+color_enum getColor(int x, int y, Mat image)
+{
+    Vec3b &Color = image.at<Vec3b>(x, y);
+
+    if (Color[0] == 0 && Color[1] == 0 && Color[2] == 0)
+        return 1;
+    if (Color[0] == 0 && Color[1] == 255 && Color[2] == 255) // Yellow pixel
+        return 2;
+
+    if (Color[0] == 0 && Color[1] == 255 && Color[2] == 0) // GREEN pixel
+        return 3;
+
+    if (Color[0] == 0 && Color[1] == 0 && Color[2] == 255) // RED pixel
+        return 4;
+    return 5;
+}
 
 void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
@@ -40,48 +72,61 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         return;
     }
 
-    // filters to be used before detection is done
-
     Mat newMat(image[0].rows, image[0].cols, CV_8UC3, Scalar(0, 0, 0));
     colour_detect[0] = newMat;
+    // filters to be used before detection is done
+    medianBlur(image[0], colour_detect[0], 5);
+
+
     detector->getPredictions(image[0], colour_detect[0]);
     temp1.deallocate();
     temp2.deallocate();
-}
-
-void buoy_detect(ros::NodeHandle nh)
-{
-
-
-
-    image_transport::ImageTransport it(nh);
-    image_transport::Subscriber sub = it.subscribe("topics::CAMERA_FRONT_RAW_IMAGE", 1, imageCallback);
-    kraken_msgs::center_color center_color_object;
-    ros::Publisher result = nh.advertise<kraken_msgs::center_color> ("CENTER_COLOR_IMAGE", 1);
-    //topic has to be added topicsheaderlist
-
-    // msgs have to defined in kraken_msg
+    cv_bridge::CvImagePtr cv_ptr_ml;
+    detector->wait_for_completion();
+    cv_ptr_ml->image = colour_detect[0];
+    ml_pub->publish(cv_ptr_ml->toImageMsg());
 
     //main code (vw detect + region growing)
 
+    Mat eroded;
+    erode(colour_detect[0], eroded, Mat(), Point(-1, -1), 2);
+
+    vector < vector <Point> > contours;
+    findContours(eroded, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+    CvMoments moments;
+    vector<point> seed_points;
+    for (size_t i = 0; i < contours.size(); i++)
+    {
+        cvMoments(contours[i], &moments);
+        point current;
+        //calculating the centers of the contours
+        current.x = (cvGetSpatialMoment(&moments, 1, 0) / cvGetSpatialMoment(&moments, 0, 0));
+        current.y = (cvGetSpatialMoment(&moments, 0, 1) / cvGetSpatialMoment(&moments, 0, 0));
+        current.color = getColor(current.x, current.y, eroded);
+        seed_points.push_back(current);
+    }
+    
+
+}
+
+void buoy_detect()
+{
+    //    image_transport::ImageTransport it(nh);
+    image_transport::Subscriber sub = it.subscribe("topics::CAMERA_FRONT_RAW_IMAGE", 1, imageCallback);
+    kraken_msgs::center_color center_color_object;
+    ros::Publisher result = nh.advertise<kraken_msgs::center_color> ("CENTER_COLOR_IMAGE", 1);
 
 
-    image_transport::Publisher ml_image_pub = it.advertise(topics::CAMERA_FRONT_ML_IMAGE, 1);
-    image_transport::Publisher final_image_pub = it.advertise(topics::CAMERA_FRONT_FINAL_IMAGE, 1);
-
-    ros::Rate loop_rate(1);
+    ros::Rate loop_rate(10);
 
     while (nh.ok())
     {
-        cv_bridge::CvImagePtr cv_ptr_ml;
-        cv_ptr_ml->image = colour_detect[0];
+        image_transport::Publisher ml_image_pub = it.advertise(topics::CAMERA_FRONT_ML_IMAGE, 1);
+        image_transport::Publisher final_image_pub = it.advertise(topics::CAMERA_FRONT_FINAL_IMAGE, 1);
+        ml_pub = &ml_image_pub;
 
-
-        ml_image_pub.publish(cv_ptr_ml->toImageMsg());
-        waitKey(1);
-
-        ros::spinOnce();
         loop_rate.sleep();
+        ros::spinOnce();
     }
 
 
@@ -89,15 +134,17 @@ void buoy_detect(ros::NodeHandle nh)
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "integration");
-
-    ros::NodeHandle nh;
+    if (argc != 2)
+    {
+        ROS_ERROR("Requires the path to vw hash");
+    }
+    ros::init(argc, argv, "buoy_detect integrator");
 
     vw_detect detector1(argv[1]);
     detector = &detector1;
 
-    buoy_detect(nh);
-    ros::spin();
+    buoy_detect();
+    //    ros::spin();
     return 0;
 }
 

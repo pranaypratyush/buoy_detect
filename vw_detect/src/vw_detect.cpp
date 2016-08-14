@@ -138,6 +138,6 @@ vw_detect::~vw_detect()
 void vw_detect::wait_for_completion()
 {
     if (!is_idle())
-        usleep(5000);
+        usleep(2400);
 }
 
