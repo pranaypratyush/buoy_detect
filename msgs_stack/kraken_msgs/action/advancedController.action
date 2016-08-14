@@ -1,0 +1,13 @@
+#goal
+int32 flag ##flag==0 means global destination and flag==1 means local destination
+float32 x
+float32 y
+float32 depth
+
+---
+#result
+float32 time_taken
+
+---
+#feedback
+float32 running_time
