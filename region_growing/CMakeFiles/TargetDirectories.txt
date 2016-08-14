@@ -1,3 +1,0 @@
-/home/pranay/Desktop/buoy_detect/region_growing/CMakeFiles/rebuild_cache.dir
-/home/pranay/Desktop/buoy_detect/region_growing/CMakeFiles/edit_cache.dir
-/home/pranay/Desktop/buoy_detect/region_growing/CMakeFiles/main_grow.dir
