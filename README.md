@@ -21,4 +21,4 @@ The work flow is the same as that of any other repository.
 
 LICENSE
 -------
-The MIT License - [Team AUV , IIT Kharagpur](https://github.com/auviitkgp) - All Rights Reserved.
+[The MIT License](LICENSE.md) - [Team AUV , IIT Kharagpur](https://github.com/auviitkgp) - All Rights Reserved.
