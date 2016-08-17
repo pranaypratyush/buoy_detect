@@ -11,7 +11,6 @@
 using namespace std;
 using namespace cv;
 using namespace std::chrono;
-
 Vec3b seed;
 
 /*
