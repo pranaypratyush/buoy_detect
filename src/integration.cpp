@@ -92,10 +92,10 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 
     Mat eroded;
     erode(colour_detect[0], eroded, Mat(), Point(-1, -1), 2);
-    
+
     vector < vector <Point> > contours;
     findContours(eroded, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
-    
+
     vector<point> seed_points;
     for (size_t i = 0; i < contours.size(); i++)
     {
@@ -103,25 +103,18 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         mu = moments(contours[i]);
         point current;
         //calculating the centers of the contours
-        current.x = mu.m10/mu.m00 ;//(cvGetSpatialMoment(&moments, 1, 0) / cvGetSpatialMoment(&moments, 0, 0));
-        current.y = mu.m01/mu.m00 ;//(cvGetSpatialMoment(&moments, 0, 1) / cvGetSpatialMoment(&moments, 0, 0));
+        current.x = mu.m10 / mu.m00; //(cvGetSpatialMoment(&moments, 1, 0) / cvGetSpatialMoment(&moments, 0, 0));
+        current.y = mu.m01 / mu.m00; //(cvGetSpatialMoment(&moments, 0, 1) / cvGetSpatialMoment(&moments, 0, 0));
         current.color = getColor(current.x, current.y, eroded);
         seed_points.push_back(current);
     }
     grow growhandle(5);
     //growhandle.start_grow()
-    
+
     cv_ptr_final->image = eroded;
     final_pub->publish(cv_ptr_final->toImageMsg());
 }
 
-void buoy_detect()
-{
-    //    image_transport::ImageTransport it(nh);
-
-
-
-}
 
 int main(int argc, char** argv)
 {
@@ -134,8 +127,6 @@ int main(int argc, char** argv)
     vw_detect detector1(argv[1]);
     detector = &detector1;
 
-    buoy_detect();
-    //    ros::spin();
     image_transport::Subscriber sub = it.subscribe("topics::CAMERA_FRONT_RAW_IMAGE", 1, imageCallback);
     kraken_msgs::center_color center_color_object;
     ros::Publisher result = nh.advertise<kraken_msgs::center_color> ("CENTER_COLOR_IMAGE", 1);
@@ -148,9 +139,8 @@ int main(int argc, char** argv)
 
     while (nh.ok())
     {
-
-        loop_rate.sleep();
         ros::spinOnce();
+        loop_rate.sleep();
     }
 
     return 0;
