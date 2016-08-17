@@ -10,6 +10,7 @@
 #include <resources/topicHeader.h>
 
 #include <vw_detect.h>
+#include <grow.h>
 using namespace std;
 using namespace cv;
 
@@ -30,23 +31,23 @@ Mat colour_detect[15];
 vw_detect *detector;
 ros::NodeHandle nh;
 image_transport::ImageTransport it(nh);
-image_transport::Publisher *ml_pub;
+image_transport::Publisher *ml_pub, *final_pub;
 
 color_enum getColor(int x, int y, Mat image)
 {
     Vec3b &Color = image.at<Vec3b>(x, y);
 
     if (Color[0] == 0 && Color[1] == 0 && Color[2] == 0)
-        return 1;
+        return black;
     if (Color[0] == 0 && Color[1] == 255 && Color[2] == 255) // Yellow pixel
-        return 2;
+        return yellow;
 
     if (Color[0] == 0 && Color[1] == 255 && Color[2] == 0) // GREEN pixel
-        return 3;
+        return green;
 
     if (Color[0] == 0 && Color[1] == 0 && Color[2] == 255) // RED pixel
-        return 4;
-    return 5;
+        return red;
+    return other;
 }
 
 void imageCallback(const sensor_msgs::ImageConstPtr& msg)
@@ -82,6 +83,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
     temp1.deallocate();
     temp2.deallocate();
     cv_bridge::CvImagePtr cv_ptr_ml;
+    cv_bridge::CvImagePtr cv_ptr_final;
     detector->wait_for_completion();
     cv_ptr_ml->image = colour_detect[0];
     ml_pub->publish(cv_ptr_ml->toImageMsg());
@@ -90,14 +92,14 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 
     Mat eroded;
     erode(colour_detect[0], eroded, Mat(), Point(-1, -1), 2);
-
+    
     vector < vector <Point> > contours;
     findContours(eroded, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
-    CvMoments moments;
+    
     vector<point> seed_points;
     for (size_t i = 0; i < contours.size(); i++)
     {
-        cvMoments(contours[i], &moments);
+        CvMoments moments(contours[i]);
         point current;
         //calculating the centers of the contours
         current.x = (cvGetSpatialMoment(&moments, 1, 0) / cvGetSpatialMoment(&moments, 0, 0));
@@ -105,29 +107,17 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         current.color = getColor(current.x, current.y, eroded);
         seed_points.push_back(current);
     }
+    grow growhandle(5);
+    //growhandle.start_grow()
     
-
+    cv_ptr_final->image = eroded;
+    final_pub->publish(cv_ptr_final->toImageMsg());
 }
 
 void buoy_detect()
 {
     //    image_transport::ImageTransport it(nh);
-    image_transport::Subscriber sub = it.subscribe("topics::CAMERA_FRONT_RAW_IMAGE", 1, imageCallback);
-    kraken_msgs::center_color center_color_object;
-    ros::Publisher result = nh.advertise<kraken_msgs::center_color> ("CENTER_COLOR_IMAGE", 1);
 
-
-    ros::Rate loop_rate(10);
-
-    while (nh.ok())
-    {
-        image_transport::Publisher ml_image_pub = it.advertise(topics::CAMERA_FRONT_ML_IMAGE, 1);
-        image_transport::Publisher final_image_pub = it.advertise(topics::CAMERA_FRONT_FINAL_IMAGE, 1);
-        ml_pub = &ml_image_pub;
-
-        loop_rate.sleep();
-        ros::spinOnce();
-    }
 
 
 }
@@ -145,6 +135,23 @@ int main(int argc, char** argv)
 
     buoy_detect();
     //    ros::spin();
+    image_transport::Subscriber sub = it.subscribe("topics::CAMERA_FRONT_RAW_IMAGE", 1, imageCallback);
+    kraken_msgs::center_color center_color_object;
+    ros::Publisher result = nh.advertise<kraken_msgs::center_color> ("CENTER_COLOR_IMAGE", 1);
+    image_transport::Publisher ml_image_pub = it.advertise(topics::CAMERA_FRONT_ML_IMAGE, 1);
+    image_transport::Publisher final_image_pub = it.advertise(topics::CAMERA_FRONT_FINAL_IMAGE, 1);
+    ml_pub = &ml_image_pub;
+    final_pub = &final_image_pub;
+
+    ros::Rate loop_rate(10);
+
+    while (nh.ok())
+    {
+
+        loop_rate.sleep();
+        ros::spinOnce();
+    }
+
     return 0;
 }
 

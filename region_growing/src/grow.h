@@ -9,10 +9,10 @@ class grow
 {
 	public :
 		grow(int threshold);
-		start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag);
-		setThreshold(int threshold);
+		void start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag);
+		void setThreshold(int threshold);
 		~grow();
 
 	private :
 		int threshold;
-}
+};
