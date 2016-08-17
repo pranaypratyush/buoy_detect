@@ -4,8 +4,8 @@
 #include <string>
 #include <sstream>
 #include <list>
-#include "Color.cpp"
-
+#include "Color.hpp"
+#include "grow.h"
 using namespace std;
 using namespace cv;
 
@@ -86,6 +86,10 @@ grow::grow(int threshold)
 {
 	this->threshold = threshold;
 }
+grow::~grow()
+{
+    
+}
 
 /*
 	Region Growing algorithm, which is flood type algorithm
@@ -95,7 +99,7 @@ grow::grow(int threshold)
 	threshold --> if distance is less than threshold then recursion proceeds, else stops.
 	colorflag --> to determine the color to be filled with
 */
-grow::start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag)
+void grow::start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag)
 {
 	int x, y;
 	long int count = 1;
@@ -265,7 +269,7 @@ grow::start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag)
 	}
 }
 
-grow::setThreshold(int threshold)
+void grow::setThreshold(int threshold)
 {
 	this->threshold = threshold;
 }

@@ -99,11 +99,12 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
     vector<point> seed_points;
     for (size_t i = 0; i < contours.size(); i++)
     {
-        CvMoments moments(contours[i]);
+        Moments mu;
+        mu = moments(contours[i]);
         point current;
         //calculating the centers of the contours
-        current.x = (cvGetSpatialMoment(&moments, 1, 0) / cvGetSpatialMoment(&moments, 0, 0));
-        current.y = (cvGetSpatialMoment(&moments, 0, 1) / cvGetSpatialMoment(&moments, 0, 0));
+        current.x = mu.m10/mu.m00 ;//(cvGetSpatialMoment(&moments, 1, 0) / cvGetSpatialMoment(&moments, 0, 0));
+        current.y = mu.m01/mu.m00 ;//(cvGetSpatialMoment(&moments, 0, 1) / cvGetSpatialMoment(&moments, 0, 0));
         current.color = getColor(current.x, current.y, eroded);
         seed_points.push_back(current);
     }

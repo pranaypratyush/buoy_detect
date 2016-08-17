@@ -1,3 +1,6 @@
+#ifndef GROW_H
+#define GROW_H
+
 #include <cstdlib>
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -16,3 +19,5 @@ class grow
 	private :
 		int threshold;
 };
+
+#endif
