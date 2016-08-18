@@ -108,13 +108,17 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         current.color = getColor(current.x, current.y, eroded);
         seed_points.push_back(current);
     }
-    grow growhandle(5);
-    //growhandle.start_grow()
-
-    cv_ptr_final->image = eroded;
+    Mat final_image(eroded.rows, eroded.cols, CV_8UC3), edgeMap(eroded.rows, eroded.cols, CV_8UC3);
+    eroded.copyTo(final_image);
+    grow growhandle;
+    growhandle.setThresholds(15, 15);
+    for (size_t i = 0; i < seed_points.size(); i++)
+    {
+        growhandle.start_grow(eroded, final_image, edgeMap, seed_points[i].x, seed_points[i].y, seed_points[i].color);
+    }
+    cv_ptr_final->image = final_image;
     final_pub->publish(cv_ptr_final->toImageMsg());
 }
-
 
 int main(int argc, char** argv)
 {
