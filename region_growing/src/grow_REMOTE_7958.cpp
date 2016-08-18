@@ -6,22 +6,16 @@
 #include <list>
 #include "Color.hpp"
 #include "grow.h"
-<<<<<<< HEAD
-
-=======
->>>>>>> upstream/master
 using namespace std;
 using namespace cv;
 
 /*
-	Function to determine the color difference between two pixel points.
-	This function also calculates the color distance between white pixel
-	and input pixel to deal overexposed regions of buoy.
-	This function implements CIEDE2000 algorithm to find the distance in color
+	Function to determine the color difference between two pixel points 
+	This implements CIEDE2000 algorithm to find the difference in color
 */
-bool colorDistance(Vec3b a, Vec3b b, int colorThreshold, int whiteThreshold)
+bool colorDistance(Vec3b a, Vec3b b, int threshold)
 {
-	std::vector<double> ca, cb, cw(3, 255);
+	std::vector<double> ca, cb;
 
 	ca.push_back((double)a[2]);
 	ca.push_back((double)a[1]);
@@ -31,10 +25,9 @@ bool colorDistance(Vec3b a, Vec3b b, int colorThreshold, int whiteThreshold)
 	cb.push_back((double)b[1]);
 	cb.push_back((double)b[0]);
 
-	float dist1 = kallaballa::ciede2000_distance(ca, cb);
-	float dist2 = kallaballa::ciede2000_distance(cb, cw);
+	float dist = kallaballa::ciede2000_distance(ca, cb);
 
-	if((int)dist1 <= colorThreshold || (int)dist2 <= whiteThreshold)
+	if((int)dist <= threshold)
 		return true;
 	else
 		return false;
@@ -88,13 +81,10 @@ string intToString(int x, int y)
 
 	return s;
 }
-/*
-	Constructor sets default values to colorThreshold and whiteThreshold
-*/
-grow::grow()
+
+grow::grow(int threshold)
 {
-	this->colorThreshold = 20;
-	this->whiteThreshold = 10;
+	this->threshold = threshold;
 }
 grow::~grow()
 {
@@ -103,17 +93,13 @@ grow::~grow()
 
 /*
 	Region Growing algorithm, which is flood type algorithm
-	filled -> output image with filled buoys
-	edgeMap -> output image with only edges of final blobs
+	edgeMap -> output images with only edges of final blobs
 	sX --> Seed Pixel x value
 	sY --> Seed Pixel y value
+	threshold --> if distance is less than threshold then recursion proceeds, else stops.
 	colorflag --> to determine the color to be filled with
 */
-<<<<<<< HEAD
-void grow::start_grow(Mat input, Mat filled, Mat edgeMap, int sX, int sY, int colorflag)
-=======
 void grow::start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag)
->>>>>>> upstream/master
 {
 	int x, y;
 	long int count = 1;
@@ -125,7 +111,7 @@ void grow::start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag)
 
 	reach[sX][sY] = true;
 
-	modifyPixel(filled, sX, sY, colorflag);
+	modifyPixel(input, sX, sY, colorflag);
 
 	s = intToString(sX, sY);
 	queue.push_back(s);
@@ -144,14 +130,14 @@ void grow::start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag)
 		//Right Pixel
 		if(x + 1 < input.rows && (!reach[x + 1][y]))
 		{
-			if(colorDistance(seed, input.at<Vec3b>(x + 1, y), colorThreshold, whiteThreshold))
+			if(colorDistance(seed, input.at<Vec3b>(x + 1, y), threshold))
 			{
 				//cout << "reached right pixel" << endl;
 				reach[x + 1][y] = true;
 				s = intToString(x + 1, y);
 				queue.push_back(s);
 				//updateMean(seed, input.at<Vec3b>(x + 1, y), count);
-				modifyPixel(filled, x + 1, y, colorflag);
+				modifyPixel(input, x + 1, y, colorflag);
 				++count;
 			}
 			else
@@ -162,14 +148,14 @@ void grow::start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag)
 		//Below Pixel
 		if(y + 1 < input.cols && (!reach[x][y + 1]))
 		{
-			if(colorDistance(seed, input.at<Vec3b>(x, y + 1), colorThreshold, whiteThreshold))
+			if(colorDistance(seed, input.at<Vec3b>(x, y + 1), threshold))
 			{
 				//cout << "reached Below pixel" << endl;
 				reach[x][y + 1] = true;
 				s = intToString(x, y + 1);
 				queue.push_back(s);
 				//updateMean(seed, input.at<Vec3b>(x, y + 1), count);
-				modifyPixel(filled, x, y + 1, colorflag);
+				modifyPixel(input, x, y + 1, colorflag);
 				++count;
 			}
 			else
@@ -182,14 +168,14 @@ void grow::start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag)
 		//Left Pixel
 		if(x - 1 >= 0 && (!reach[x - 1][y]))
 		{
-			if(colorDistance(seed, input.at<Vec3b>(x - 1, y), colorThreshold, whiteThreshold))
+			if(colorDistance(seed, input.at<Vec3b>(x - 1, y), threshold))
 			{
 				//cout << "reached left pixel" << endl;
 				reach[x - 1][y] = true;
 				s = intToString(x - 1, y);
 				queue.push_back(s);
 				//updateMean(seed, input.at<Vec3b>(x - 1, y), count);
-				modifyPixel(filled, x - 1, y, colorflag);
+				modifyPixel(input, x - 1, y, colorflag);
 				++count;
 			}
 			else
@@ -199,14 +185,14 @@ void grow::start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag)
 		//Above Pixel
 		if(y - 1 >= 0 && (!reach[x][y - 1]))
 		{
-			if(colorDistance(seed, input.at<Vec3b>(x, y - 1), colorThreshold, whiteThreshold))
+			if(colorDistance(seed, input.at<Vec3b>(x, y - 1), threshold))
 			{
 				//cout << "reached Above pixel" << endl;
 				reach[x][y - 1] = true;
 				s = intToString(x, y - 1);
 				queue.push_back(s);
 				//updateMean(seed, input.at<Vec3b>(x, y - 1), count);
-				modifyPixel(filled, x, y - 1, colorflag);
+				modifyPixel(input, x, y - 1, colorflag);
 				++count;
 			}
 			else
@@ -216,14 +202,14 @@ void grow::start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag)
 		//Bottom Right Pixel
 		if(x + 1 < input.rows && y + 1 < input.cols && (!reach[x + 1][y + 1]))
 		{
-			if(colorDistance(seed, input.at<Vec3b>(x + 1, y + 1), colorThreshold, whiteThreshold))
+			if(colorDistance(seed, input.at<Vec3b>(x + 1, y + 1), threshold))
 			{
 				//cout << "reached Bottom Right pixel" << endl;
 				reach[x + 1][y + 1] = true;
 				s = intToString(x + 1, y + 1);
 				queue.push_back(s);
 				//updateMean(seed, input.at<Vec3b>(x + 1, y + 1), count);
-				modifyPixel(filled, x + 1, y + 1, colorflag);
+				modifyPixel(input, x + 1, y + 1, colorflag);
 				++count;
 			}
 			else
@@ -233,14 +219,14 @@ void grow::start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag)
 		//Upper Right Pixel
 		if(x + 1 < input.rows && y - 1 >= 0 && (!reach[x + 1][y - 1]))
 		{
-			if(colorDistance(seed, input.at<Vec3b>(x + 1, y - 1), colorThreshold, whiteThreshold))
+			if(colorDistance(seed, input.at<Vec3b>(x + 1, y - 1), threshold))
 			{
 				//cout << "reached Upper right pixel" << endl;
 				reach[x + 1][y - 1] = true;
 				s = intToString(x + 1, y - 1);
 				queue.push_back(s);
 				//updateMean(seed, input.at<Vec3b>(x + 1, y - 1), count);
-				modifyPixel(filled, x + 1, y - 1, colorflag);
+				modifyPixel(input, x + 1, y - 1, colorflag);
 				++count;
 			}
 			else
@@ -250,14 +236,14 @@ void grow::start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag)
 		//Bottom Left Pixel
 		if(x - 1 >= 0 && y + 1 < input.cols && (!reach[x - 1][y + 1]))
 		{
-			if(colorDistance(seed, input.at<Vec3b>(x - 1, y + 1), colorThreshold, whiteThreshold))
+			if(colorDistance(seed, input.at<Vec3b>(x - 1, y + 1), threshold))
 			{
 				//cout << "reached Bottom left pixel" << endl;			
 				reach[x - 1][y + 1] = true;
 				s = intToString(x - 1, y + 1);
 				queue.push_back(s);
 				//updateMean(seed, input.at<Vec3b>(x - 1, y + 1), count);
-				modifyPixel(filled, x - 1, y + 1, colorflag);
+				modifyPixel(input, x - 1, y + 1, colorflag);
 				++count;
 			}
 			else
@@ -267,14 +253,14 @@ void grow::start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag)
 		//Upper left Pixel
 		if(x - 1 >= 0 && y - 1 >= 0 && (!reach[x - 1][y - 1]))
 		{
-			if(colorDistance(seed, input.at<Vec3b>(x - 1, y - 1), colorThreshold, whiteThreshold))
+			if(colorDistance(seed, input.at<Vec3b>(x - 1, y - 1), threshold))
 			{
 				//cout << "reached Upper left pixel" << endl;
 				reach[x - 1][y - 1] = true;
 				s = intToString(x - 1, y - 1);
 				queue.push_back(s);
 				//updateMean(seed, input.at<Vec3b>(x - 1, y - 1), count);
-				modifyPixel(filled, x - 1, y - 1, colorflag);
+				modifyPixel(input, x - 1, y - 1, colorflag);
 				++count;
 			}
 			else
@@ -282,23 +268,8 @@ void grow::start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag)
 		}
 	}
 }
-<<<<<<< HEAD
-/*
-	Funtion to set both the thresholds	
-*/
-void grow::setThresholds(int colorThreshold, int whiteThreshold)
-=======
 
 void grow::setThreshold(int threshold)
->>>>>>> upstream/master
 {
-	this->colorThreshold = colorThreshold;
-	this->whiteThreshold = whiteThreshold;
-}
-/*
-	Destructor
-*/
-grow::~grow()
-{
-
+	this->threshold = threshold;
 }

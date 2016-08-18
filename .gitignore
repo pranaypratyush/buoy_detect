@@ -2,6 +2,10 @@ CMakeCache.txt
 main
 Makefile
 cmake_install.cmake
-CmakeFiles/
+CMakeFiles/
 nbproject/
 compile_commands.json
+vw_detect/CMakeFiles/*
+vw_detect/CMakeCache.txt
+region_growing/CMakeFiles/*
+region_growing/CMakeCache.txt
