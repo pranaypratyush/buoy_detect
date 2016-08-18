@@ -6,10 +6,7 @@
 #include <list>
 #include "Color.hpp"
 #include "grow.h"
-<<<<<<< HEAD
 
-=======
->>>>>>> upstream/master
 using namespace std;
 using namespace cv;
 
@@ -96,10 +93,6 @@ grow::grow()
 	this->colorThreshold = 20;
 	this->whiteThreshold = 10;
 }
-grow::~grow()
-{
-    
-}
 
 /*
 	Region Growing algorithm, which is flood type algorithm
@@ -109,11 +102,7 @@ grow::~grow()
 	sY --> Seed Pixel y value
 	colorflag --> to determine the color to be filled with
 */
-<<<<<<< HEAD
 void grow::start_grow(Mat input, Mat filled, Mat edgeMap, int sX, int sY, int colorflag)
-=======
-void grow::start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag)
->>>>>>> upstream/master
 {
 	int x, y;
 	long int count = 1;
@@ -282,15 +271,10 @@ void grow::start_grow(Mat input, Mat edgeMap, int sX, int sY, int colorflag)
 		}
 	}
 }
-<<<<<<< HEAD
 /*
 	Funtion to set both the thresholds	
 */
 void grow::setThresholds(int colorThreshold, int whiteThreshold)
-=======
-
-void grow::setThreshold(int threshold)
->>>>>>> upstream/master
 {
 	this->colorThreshold = colorThreshold;
 	this->whiteThreshold = whiteThreshold;
